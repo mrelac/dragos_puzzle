@@ -12,6 +12,7 @@ class PuzzlePiece extends StatefulWidget {
   final int maxCol;
   final Function bringToTop;
   final Function sendToBack;
+
   const PuzzlePiece({
     super.key,
     required this.image,
@@ -24,7 +25,6 @@ class PuzzlePiece extends StatefulWidget {
     required this.sendToBack,
   });
 
-
   @override
   PuzzlePieceState createState() {
     return PuzzlePieceState();
@@ -32,8 +32,8 @@ class PuzzlePiece extends StatefulWidget {
 }
 
 class PuzzlePieceState extends State<PuzzlePiece> {
-  double top = -1.0;
-  double left = -1.0;
+  double? top;
+  double? left;
   bool isMovable = true;
 
   @override
@@ -45,13 +45,13 @@ class PuzzlePieceState extends State<PuzzlePiece> {
     final pieceWidth = imageWidth / widget.maxCol;
     final pieceHeight = imageHeight / widget.maxRow;
 
-    if (top < 0) {
+    if (top == null) {
       top = Random().nextInt((imageHeight - pieceHeight).ceil()).toDouble();
-      top -= widget.row * pieceHeight;
+      top = top! - widget.row * pieceHeight;
     }
-    if (left < 0) {
+    if (left == null) {
       left = Random().nextInt((imageWidth - pieceWidth).ceil()).toDouble();
-      left -= widget.col * pieceWidth;
+      left = left! - widget.col * pieceWidth;
     }
 
     return Positioned(
@@ -72,10 +72,10 @@ class PuzzlePieceState extends State<PuzzlePiece> {
         onPanUpdate: (dragUpdateDetails) {
           if (isMovable) {
             setState(() {
-              top += dragUpdateDetails.delta.dy;
-              left += dragUpdateDetails.delta.dx;
+              top = top! + dragUpdateDetails.delta.dy;
+              left = left! + dragUpdateDetails.delta.dx;
 
-              if (-10 < top && top < 10 && -10 < left && left < 10) {
+              if (-10 < top! && top! < 10 && -10 < left! && left! < 10) {
                 top = 0;
                 left = 0;
                 isMovable = false;

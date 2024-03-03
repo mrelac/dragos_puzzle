@@ -38,13 +38,13 @@ class PuzzlePieceState extends State<PuzzlePiece> {
 
   @override
   Widget build(BuildContext context) {
-    final imageWidth = MediaQuery.of(context).size.width;
-    final imageHeight = MediaQuery.of(context).size.height *
-        MediaQuery.of(context).size.width /
-        widget.imageSize.width;
+    final playSize = Size(
+        MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+    final fitSize = fitImage(playSize, widget.imageSize.aspectRatio);
+    final imageWidth = fitSize.width;
+    final imageHeight = fitSize.height;
     final pieceWidth = imageWidth / widget.maxCol;
     final pieceHeight = imageHeight / widget.maxRow;
-
     if (top == null) {
       top = Random().nextInt((imageHeight - pieceHeight).ceil()).toDouble();
       top = top! - widget.row * pieceHeight;
@@ -75,7 +75,7 @@ class PuzzlePieceState extends State<PuzzlePiece> {
               top = top! + dragUpdateDetails.delta.dy;
               left = left! + dragUpdateDetails.delta.dx;
 
-              if (-10 < top! && top! < 10 && -10 < left! && left! < 10) {
+              if (-20 < top! && top! < 20 && -20 < left! && left! < 20) {
                 top = 0;
                 left = 0;
                 isMovable = false;
@@ -95,6 +95,9 @@ class PuzzlePieceState extends State<PuzzlePiece> {
       ),
     );
   }
+
+  Size fitImage(Size playSize, double imageAr) =>
+      Size(playSize.height * imageAr, playSize.height);
 }
 
 // this class is used to clip the image to the puzzle piece path

@@ -2,11 +2,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dragos_puzzle/puzzle_piece.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
-import 'package:dragos_puzzle/puzzle_piece.dart';
 
 void main() => runApp(const MyApp());
 
@@ -17,6 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Puzzle',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -34,8 +34,6 @@ class MyHomePage extends StatefulWidget {
   final int rows = 3;
   final int cols = 3;
 
-  // MyHomePage({Key key, this.title}) : super(key: key);
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -46,9 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future getImage(ImageSource source) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      // initialDirectory: dirs.zipStorage,
       allowMultiple: false,
-      // allowedExtensions: ['png', 'jpg'],
       type: FileType.image,
     );
 
@@ -59,44 +55,15 @@ class _MyHomePageState extends State<MyHomePage> {
       pieces.clear();
     });
     splitImage(Image.file(File(result.paths.first!)));
-
-    // var image = await (ImagePicker()).pickImage(source: source);
-
-    // if (image != null) {
-    //   setState(() {
-    //     _image = File(image.path);
-    //     pieces.clear();
-    //   });
-
-      // splitImage(Image.file(File(image.path)));
-    // }
   }
-
-  // we need to find out the image size, to be used in the PuzzlePiece widget
-  // Future<Size> getImageSize(Image image) async {
-  //   final Completer<Size> completer = Completer<Size>();
-
-  //   image.image.resolve(const ImageConfiguration()).addListener(
-  //         (ImageInfo info, bool _) {
-  //       completer.complete(Size(
-  //         info.image.width.toDouble(),
-  //         info.image.height.toDouble(),
-  //       ));
-  //     },
-  //   );
-
-  //   final Size imageSize = await completer.future;
-
-  //   return imageSize;
-  // }
 
   /// Returns [image] size.
   Future<Size> getImageSize(Image image) {
     Completer<Size> completer = Completer();
     image.image.resolve(const ImageConfiguration()).addListener(
         ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) {
-      Size size = Size(
-          imageInfo.image.width.toDouble(), imageInfo.image.height.toDouble());
+      Size size = Size(imageInfo.image.width.toDouble() - 60,
+          imageInfo.image.height.toDouble() - 80);
       completer.complete(size);
     }));
 
@@ -109,7 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     for (int x = 0; x < widget.rows; x++) {
       for (int y = 0; y < widget.cols; y++) {
-        print('XXXXX: Adding piece ($x, $y. imageSize = $imageSize');
         setState(() {
           pieces.add(PuzzlePiece(
               key: GlobalKey(),
@@ -145,15 +111,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SafeArea(
-        child: Center(
-            child: _image == null
-                ? const Text('No image selected.')
-                : Stack(children: pieces)),
-      ),
+      body: Center(
+          child: _image == null
+              ? const Text('No image selected.')
+              : Stack(children: pieces)),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(

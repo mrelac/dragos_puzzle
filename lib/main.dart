@@ -45,7 +45,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Future getImage(ImageSource source) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
-      type: FileType.image,
     );
 
     if (result == null) return;

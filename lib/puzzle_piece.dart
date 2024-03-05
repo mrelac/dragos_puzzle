@@ -40,7 +40,9 @@ class PuzzlePieceState extends State<PuzzlePiece> {
   Widget build(BuildContext context) {
     final playSize = Size(
         MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
-    final fitSize = fitImage(playSize, widget.imageSize.aspectRatio);
+    final fitSize =
+        fitImage(playSize, playSize.aspectRatio, widget.imageSize.aspectRatio);
+
     final imageWidth = fitSize.width;
     final imageHeight = fitSize.height;
     final pieceWidth = imageWidth / widget.maxCol;
@@ -96,8 +98,12 @@ class PuzzlePieceState extends State<PuzzlePiece> {
     );
   }
 
-  Size fitImage(Size playSize, double imageAr) =>
-      Size(playSize.height * imageAr, playSize.height);
+  /// Returns a [Size] optimised for the device based on the device aspect ratio
+  /// and the full image aspect ratio.
+  Size fitImage(Size playsize, double playsizeAr, double imageAr) =>
+      playsizeAr > 1
+          ? Size(playsize.height * imageAr, playsize.height)
+          : Size(playsize.width, imageAr * playsize.width);
 }
 
 // this class is used to clip the image to the puzzle piece path
@@ -111,7 +117,10 @@ class PuzzlePieceClipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    return getPiecePath(size, row, col, maxRow, maxCol);
+    final path = getPiecePath(size, row, col, maxRow, maxCol);
+    print('XXXXXX: getClip($row, $col): ${path.computeMetrics().toString()}');
+
+    return path;
   }
 
   @override
@@ -150,6 +159,51 @@ Path getPiecePath(Size size, int row, int col, int maxRow, int maxCol) {
   final offsetX = col * width;
   final offsetY = row * height;
   final bumpSize = height / 4;
+
+  print(
+      'YYYYY: getPiecePath(): width = $width. height = $height. offsetX = $offsetX. offsetY = $offsetY. bumpSize = $bumpSize');
+  '''
+TABLET:
+  PORTRAIT: Halstatter-See.jpg
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 0.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 280.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 560.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 0.0. offsetY = 560.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 560.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 210.0. offsetY = 560.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 560.0. bumpSize = 70.0
+    I/flutter ( 8350): YYYYY: getPiecePath(): width = 210.0. height = 280.0. offsetX = 420.0. offsetY = 560.0. bumpSize = 70.0
+
+  LANDSCAPE: dow-farm-1.jpg
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 0.0. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 286.0344827586207. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 0.0. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 381.3793103448276. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+    width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
+''';
 
   var path = Path();
   path.moveTo(offsetX, offsetY);

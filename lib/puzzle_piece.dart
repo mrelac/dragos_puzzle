@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:math';
 
+import 'package:dragos_puzzle/path_shape.dart';
 import 'package:flutter/material.dart';
+import 'package:path_drawing/path_drawing.dart';
 
 class PuzzlePiece extends StatefulWidget {
   final Image image;
@@ -205,72 +207,152 @@ TABLET:
     width = 381.3793103448276. height = 286.0344827586207. offsetX = 762.7586206896552. offsetY = 572.0689655172414. bumpSize = 71.50862068965517
 ''';
 
+  final sb = StringBuffer();
+
+  String m = '';
+  String e = '';
+  String s = '';
+  String w = '';
+  String n = '';
+
   var path = Path();
-  path.moveTo(offsetX, offsetY);
+  // path.moveTo(offsetX, offsetY);
+  sb.write('M $offsetX $offsetY');
+  m = sb.toString();
 
+  // if (row == 0) {
+  //   // top side piece
+  //   path.lineTo(offsetX + width, offsetY);
+  // } else {
+  //   // top bump
+  //   path.lineTo(offsetX + width / 3, offsetY);
+  //   path.cubicTo(
+  //       offsetX + width / 6,
+  //       offsetY - bumpSize,
+  //       offsetX + width / 6 * 5,
+  //       offsetY - bumpSize,
+  //       offsetX + width / 3 * 2,
+  //       offsetY);
+  //   path.lineTo(offsetX + width, offsetY);
+  // }
+  sb.clear();
   if (row == 0) {
-    // top side piece
-    path.lineTo(offsetX + width, offsetY);
+    sb.write('L ${offsetX + width} $offsetY');
   } else {
-    // top bump
-    path.lineTo(offsetX + width / 3, offsetY);
-    path.cubicTo(
-        offsetX + width / 6,
-        offsetY - bumpSize,
-        offsetX + width / 6 * 5,
-        offsetY - bumpSize,
-        offsetX + width / 3 * 2,
-        offsetY);
-    path.lineTo(offsetX + width, offsetY);
+    sb
+      ..write('L ${offsetX + width / 3} $offsetY')
+      ..write(' C ${offsetX + width / 6}')
+      ..write(' ${offsetY - bumpSize}')
+      ..write(' ${offsetX + width / 6 * 5}')
+      ..write(' ${offsetY - bumpSize}')
+      ..write(' ${offsetX + width / 3 * 2}')
+      ..write(' $offsetY')
+      ..write(' L ${offsetX + width} $offsetY');
   }
+  e = sb.toString();
 
+  // if (col == maxCol - 1) {
+  //   // right side piece
+  //   path.lineTo(offsetX + width, offsetY + height);
+  // } else {
+  //   path.lineTo(offsetX + width, offsetY + height / 3);
+  //   // right bump
+  //   path.cubicTo(
+  //       offsetX + width - bumpSize,
+  //       offsetY + height / 6,
+  //       offsetX + width - bumpSize,
+  //       offsetY + height / 6 * 5,
+  //       offsetX + width,
+  //       offsetY + height / 3 * 2);
+  //   path.lineTo(offsetX + width, offsetY + height);
+  // }
+  sb.clear();
   if (col == maxCol - 1) {
     // right side piece
-    path.lineTo(offsetX + width, offsetY + height);
+    sb.write('L ${offsetX + width} ${offsetY + height}');
   } else {
-    // right bump
-    path.lineTo(offsetX + width, offsetY + height / 3);
-    path.cubicTo(
-        offsetX + width - bumpSize,
-        offsetY + height / 6,
-        offsetX + width - bumpSize,
-        offsetY + height / 6 * 5,
-        offsetX + width,
-        offsetY + height / 3 * 2);
-    path.lineTo(offsetX + width, offsetY + height);
+    sb
+      ..write('L ${offsetX + width} ${offsetY + height / 3}')
+      ..write(' C ${offsetX + width - bumpSize}')
+      ..write(' ${offsetY + height / 6}')
+      ..write(' ${offsetX + width - bumpSize}')
+      ..write(' ${offsetY + height / 6 * 5}')
+      ..write(' ${offsetX + width}')
+      ..write(' ${offsetY + height / 3 * 2}')
+      ..write(' L ${offsetX + width} ${offsetY + height}');
   }
+  s = sb.toString();
 
+  // if (row == maxRow - 1) {
+  //   // bottom side piece
+  //   path.lineTo(offsetX, offsetY + height);
+  // } else {
+  //   // bottom bump
+  //   path.lineTo(offsetX + width / 3 * 2, offsetY + height);
+  //   path.cubicTo(
+  //       offsetX + width / 6 * 5,
+  //       offsetY + height - bumpSize,
+  //       offsetX + width / 6,
+  //       offsetY + height - bumpSize,
+  //       offsetX + width / 3,
+  //       offsetY + height);
+  //   path.lineTo(offsetX, offsetY + height);
+  // }
+  sb.clear();
   if (row == maxRow - 1) {
     // bottom side piece
-    path.lineTo(offsetX, offsetY + height);
+    sb.write('L $offsetX ${offsetY + height}');
   } else {
-    // bottom bump
-    path.lineTo(offsetX + width / 3 * 2, offsetY + height);
-    path.cubicTo(
-        offsetX + width / 6 * 5,
-        offsetY + height - bumpSize,
-        offsetX + width / 6,
-        offsetY + height - bumpSize,
-        offsetX + width / 3,
-        offsetY + height);
-    path.lineTo(offsetX, offsetY + height);
+    sb
+      ..write('L ${offsetX + width / 3 * 2} ${offsetY + height}')
+      ..write(' C ${offsetX + width / 6 * 5}')
+      ..write(' ${offsetY + height - bumpSize}')
+      ..write(' ${offsetX + width / 6}')
+      ..write(' ${offsetY + height - bumpSize}')
+      ..write(' ${offsetX + width / 3}')
+      ..write(' ${offsetY + height}')
+      ..write(' L $offsetX ${offsetY + height}');
   }
+  w = sb.toString();
 
+  // if (col == 0) {
+  //   // left side piece
+  //   path.close();
+  // } else {
+  //   // left bump
+  //   path.lineTo(offsetX, offsetY + height / 3 * 2);
+  //   path.cubicTo(
+  //       offsetX - bumpSize,
+  //       offsetY + height / 6 * 5,
+  //       offsetX - bumpSize,
+  //       offsetY + height / 6,
+  //       offsetX,
+  //       offsetY + height / 3);
+  //   path.close();
+  // }
+  sb.clear();
   if (col == 0) {
-    // left side piece
-    path.close();
+    sb.write('Z');
   } else {
-    // left bump
-    path.lineTo(offsetX, offsetY + height / 3 * 2);
-    path.cubicTo(
-        offsetX - bumpSize,
-        offsetY + height / 6 * 5,
-        offsetX - bumpSize,
-        offsetY + height / 6,
-        offsetX,
-        offsetY + height / 3);
-    path.close();
+    sb
+      ..write('L $offsetX ${offsetY + height / 3 * 2}')
+      ..write(' C ${offsetX - bumpSize}')
+      ..write(' ${offsetY + height / 6 * 5}')
+      ..write(' ${offsetX - bumpSize}')
+      ..write(' ${offsetY + height / 6}')
+      ..write(' $offsetX')
+      ..write(' ${offsetY + height / 3}')
+      ..write(' Z');
   }
+  n = sb.toString();
+  final pathString = '$m $e $s $w $n';
+  print('YYYYY: pathString: $pathString');
+  print('YYYYY:');
+  return toPath(pathString);
 
-  return path;
+  // return path;
+}
+
+Path toPath(String pathString) {
+  return parseSvgPathData(pathString);
 }

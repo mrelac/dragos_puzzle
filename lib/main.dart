@@ -7,6 +7,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+late Size imageSize;
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -71,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // here we will split the image into small pieces using the rows and columns defined above; each piece will be added to a stack
   void splitImage(Image image) async {
-    Size imageSize = await getImageSize(image);
+    imageSize = await getImageSize(image);
 
     for (int x = 0; x < widget.rows; x++) {
       for (int y = 0; y < widget.cols; y++) {

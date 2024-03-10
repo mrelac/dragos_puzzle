@@ -1,8 +1,8 @@
-// // ignore_for_file: public_member_api_docs, sort_constructors_first
-// import 'package:flutter/material.dart';
-// import 'package:path_drawing/path_drawing.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
+import 'package:path_drawing/path_drawing.dart';
 
-// import 'package:dragos_puzzle/path_shape.dart';
+import 'package:dragos_puzzle/path_shape.dart';
 
 // class EdgeStyles {
 //   final ePaths = <Epath1>[];
@@ -54,7 +54,7 @@
 //   }
 // }
 
-// Edgepath e1 = Edgepath(dir: dir, size: size, row: row, col: col, maxRow: maxRow, maxCol: maxCol, genPath: genPath, genPathMate: genPathMate)
+// //  = Edgepath(dir: dir, size: size, row: row, col: col, maxRow: maxRow, maxCol: maxCol, genPath: genPath, genPathMate: genPathMate)
 
 // class EdgeGenerator {
 //   final Dir dir;
@@ -76,9 +76,9 @@
 //     required this.genPathMate,
 //   });
 
-//   EdgePath genPath() {
-//     return EdgePath(dir: dir, size: size, row: row, col: col, maxRow maxRow, maxCol: maxCol)
-//   }
+//   // EdgePath genPath() {
+//   //   return EdgePath(dir: dir, size: size, row: row, col: col, maxRow maxRow, maxCol: maxCol)
+//   // }
 // }
 
 // class Style1 {

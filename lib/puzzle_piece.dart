@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:math';
 
+import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/path_shape.dart';
+import 'package:dragos_puzzle/styles/path_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
 
@@ -33,6 +35,8 @@ class PuzzlePiece extends StatefulWidget {
   }
 }
 
+late Size playSize;
+
 class PuzzlePieceState extends State<PuzzlePiece> {
   double? top;
   double? left;
@@ -40,8 +44,7 @@ class PuzzlePieceState extends State<PuzzlePiece> {
 
   @override
   Widget build(BuildContext context) {
-    final playSize = Size(
-        MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+    playSize = MediaQuery.of(context).size;
     final fitSize =
         fitImage(playSize, playSize.aspectRatio, widget.imageSize.aspectRatio);
 
@@ -120,8 +123,6 @@ class PuzzlePieceClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = getPiecePath(size, row, col, maxRow, maxCol);
-    print('XXXXXX: getClip($row, $col): ${path.computeMetrics().toString()}');
-
     return path;
   }
 
@@ -129,7 +130,10 @@ class PuzzlePieceClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-// this class is used to draw a border around the clipped image
+/// This class is used to draw a border around the clipped image.
+///
+/// The overriden [paint] method's [size] parameter describes the entire
+/// image (fitted to device), not a single piece size.
 class PuzzlePiecePainter extends CustomPainter {
   final int row;
   final int col;
@@ -143,7 +147,7 @@ class PuzzlePiecePainter extends CustomPainter {
     final Paint paint = Paint()
       ..color = const Color(0x80FFFFFF)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
+      ..strokeWidth = 10.0;
 
     canvas.drawPath(getPiecePath(size, row, col, maxRow, maxCol), paint);
   }
@@ -154,8 +158,51 @@ class PuzzlePiecePainter extends CustomPainter {
   }
 }
 
+Path getPiecePath(Size imgSize, int row, int col, int maxRow, int maxCol) {
+  final PathBuilder pb = PathBuilder(
+      size: imgSize, row: row, col: col, maxRow: maxRow, maxCol: maxCol);
+  String m = pb.createM();
+  String e = pb.easts[1];       // pb.createEbump1();
+  String s = pb.souths[1];         // pb.createScut1();
+  String w = pb.wests[1];         // pb.createWcut1();
+  String n = pb.norths[1];         // pb.createNbump1();
+  final pathString = '$m $e $s $w $n';
+
+  print('AAA rc$row$col  east bump path: $m ${pb.easts[0]}');
+  // print('AAA rc$row$col  east bump mate: $m ${pb.easts[0]}');
+  print('AAA rc$row$col  east cut path:  $m ${pb.easts[1]}');
+  // print('AAA rc$row$col  east cut mate:  $m ${pb.easts[1]}');
+
+  print('AAA rc$row$col  south bump path: $m ${pb.souths[0]}');
+  // print('AAA rc$row$col  south bump mate: $m ${pb.souths[0]}');
+  print('AAA rc$row$col  south cut path:  $m ${pb.souths[1]}');
+  // print('AAA rc$row$col  south cut mate:  $m ${pb.souths[1]}');
+  
+  print('AAA rc$row$col  west bump path: $m ${pb.wests[0]}');
+  // print('AAA rc$row$col  west bump mate: $m ${pb.wests[0]}');
+  print('AAA rc$row$col  west cut path:  $m ${pb.wests[1]}');
+  // print('AAA rc$row$col  west cut mate:  $m ${pb.wests[1]}');
+
+  print('AAA rc$row$col  north bump path: $m ${pb.norths[0]}');
+  // print('AAA rc$row$col  north bump mate: $m ${pb.norths[0]}');
+  print('AAA rc$row$col  north cut path:  $m ${pb.norths[1]}');
+  // print('AAA rc$row$col  north cut mate:  $m ${pb.norths[1]}');
+
+  print('AAA rc$row$col play size: $playSize');
+  print('AAA rc$row$col image size: $imgSize');
+  print(
+      'AAA rc$row$col imgSize: $imgSize. row: $row. col: $col. maxRow: $maxRow. maxCol: $maxCol');
+  print('AAA rc$row$col pathString: $pathString');
+  // print('YYYYY:');
+  return toPath(pathString);
+}
+
+Path toPath(String pathString) {
+  return parseSvgPathData(pathString);
+}
+
 // this is the path used to clip the image and, then, to draw a border around it; here we actually draw the puzzle piece
-Path getPiecePath(Size size, int row, int col, int maxRow, int maxCol) {
+Path getPiecePath2(Size size, int row, int col, int maxRow, int maxCol) {
   final width = size.width / maxCol;
   final height = size.height / maxRow;
   final offsetX = col * width;
@@ -215,7 +262,7 @@ TABLET:
   String w = '';
   String n = '';
 
-  var path = Path();
+  // var path = Path();
   // path.moveTo(offsetX, offsetY);
   sb.write('M $offsetX $offsetY');
   m = sb.toString();
@@ -235,6 +282,7 @@ TABLET:
   //       offsetY);
   //   path.lineTo(offsetX + width, offsetY);
   // }
+  // east bump
   sb.clear();
   if (row == 0) {
     sb.write('L ${offsetX + width} $offsetY');
@@ -266,6 +314,7 @@ TABLET:
   //       offsetY + height / 3 * 2);
   //   path.lineTo(offsetX + width, offsetY + height);
   // }
+  // south cut
   sb.clear();
   if (col == maxCol - 1) {
     // right side piece
@@ -298,6 +347,7 @@ TABLET:
   //       offsetY + height);
   //   path.lineTo(offsetX, offsetY + height);
   // }
+  // west cut
   sb.clear();
   if (row == maxRow - 1) {
     // bottom side piece
@@ -330,6 +380,7 @@ TABLET:
   //       offsetY + height / 3);
   //   path.close();
   // }
+  // north bump
   sb.clear();
   if (col == 0) {
     sb.write('Z');
@@ -351,8 +402,4 @@ TABLET:
   return toPath(pathString);
 
   // return path;
-}
-
-Path toPath(String pathString) {
-  return parseSvgPathData(pathString);
 }

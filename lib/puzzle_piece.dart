@@ -162,10 +162,10 @@ Path getPiecePath(Size imgSize, int row, int col, int maxRow, int maxCol) {
   final PathBuilder pb = PathBuilder(
       size: imgSize, row: row, col: col, maxRow: maxRow, maxCol: maxCol);
   String m = pb.createM();
-  String e = pb.easts[1];       // pb.createEbump1();
+  String e = pb.easts[0];       // pb.createEbump1();
   String s = pb.souths[1];         // pb.createScut1();
   String w = pb.wests[1];         // pb.createWcut1();
-  String n = pb.norths[1];         // pb.createNbump1();
+  String n = pb.norths[0];         // pb.createNbump1();
   final pathString = '$m $e $s $w $n';
 
   print('AAA rc$row$col  east bump path: $m ${pb.easts[0]}');

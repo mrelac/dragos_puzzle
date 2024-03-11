@@ -73,12 +73,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // here we will split the image into small pieces using the rows and columns defined above; each piece will be added to a stack
   void splitImage(Image image) async {
-    imageSize = await getImageSize(image);
+    final playSize = MediaQuery.of(context).size;
+    final imageSize = await getImageSize(image);
 
     for (int x = 0; x < widget.rows; x++) {
       for (int y = 0; y < widget.cols; y++) {
         setState(() {
           pieces.add(PuzzlePiece(
+              playSize: playSize,
               key: GlobalKey(),
               image: image,
               imageSize: imageSize,

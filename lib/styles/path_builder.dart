@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:dragos_puzzle/styles/edge_path.dart';
 import 'package:flutter/material.dart';
+import 'package:path_drawing/path_drawing.dart';
 
+/// This class generates and stores all svg [Path] strings for the given parameters.
 class PathBuilder {
   final Size size;
   final int row;
@@ -13,16 +15,11 @@ class PathBuilder {
   late final double offsetX;
   late final double offsetY;
   late final double bumpSize;
-  late final PathParms eastBumpParms;
-  late final PathParms southBumpParms;
-  late final PathParms westBumpParms;
-  late final PathParms northBumpParms;
 
-  final easts = <String>[];
-  final souths = <String>[];
-  final wests = <String>[];
-  final norths = <String>[];
-  final pieces = <int, Piece>{};
+  final easts = <Edge>[];
+  final souths = <Edge>[];
+  final wests = <Edge>[];
+  final norths = <Edge>[];
 
   PathBuilder({
     required this.size,
@@ -46,23 +43,24 @@ class PathBuilder {
     final northCutParms = _flipVertical(northBumpParms);
 
     easts.addAll([
-      _buildEastPath(eastBumpParms),
-      _buildEastPath(eastCutParms),
+      _buildEastEdge(eastBumpParms, EdgeStyle.bump),
+      _buildEastEdge(eastCutParms, EdgeStyle.cut),
     ]);
     souths.addAll([
-      _buildSouthPath(southBumpParms),
-      _buildSouthPath(southCutParms),
+      _buildSouthEdge(southBumpParms, EdgeStyle.bump),
+      _buildSouthEdge(southCutParms, EdgeStyle.cut),
     ]);
     wests.addAll([
-      _buildWestPath(westBumpParms),
-      _buildWestPath(westCutParms),
+      _buildWestEdge(westBumpParms, EdgeStyle.bump),
+      _buildWestEdge(westCutParms, EdgeStyle.cut),
     ]);
     norths.addAll([
-      _buildNorthtPath(northBumpParms),
-      _buildNorthtPath(northCutParms),
+      _buildNorthEdge(northBumpParms, EdgeStyle.bump),
+      _buildNorthEdge(northCutParms, EdgeStyle.cut),
     ]);
   }
 
+  /// Returns the svg-relative 'm' path component.
   String createM() => 'm $offsetX $offsetY';
 
   /// Returns [PathParms] bump [pp] as cut or cut[pp] as bump for horizontal path.
@@ -112,61 +110,74 @@ class PathBuilder {
       p6: pieceHeight / 3,
       afterC: pieceHeight / 3);
 
-  String _buildEastPath(PathParms pp) => row == 0
-      ? 'h $pieceWidth'
-      : ((StringBuffer())
-            ..write('h ${pp.beforeC}')
-            ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-            ..write(' h ${pp.afterC}'))
-          .toString();
+  Edge _buildEastEdge(PathParms pp, EdgeStyle style) {
+    const dir = Dir.e;
+    final key = 0; // TODO get next key from preferences.
+    return row == 0
+        ? Edge(path: 'h $pieceWidth', dir: dir, style: EdgeStyle.line)
+        : Edge(key: key, path: getHorizontalPath(pp), dir: dir, style: style);
+  }
 
-  String _buildWestPath(PathParms pp) => row == maxRow - 1
-      ? 'h ${-pieceWidth}'
-      : ((StringBuffer())
-            ..write('h ${pp.beforeC}')
-            ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-            ..write(' h ${pp.afterC}'))
-          .toString();
+  Edge _buildSouthEdge(PathParms pp, EdgeStyle style) {
+    const dir = Dir.s;
+    final key = 0; // TODO get next key from preferences.
+    return col == maxCol - 1
+        ? Edge(path: 'v $pieceHeight', dir: dir, style: EdgeStyle.line)
+        : Edge(key: key, path: getVerticalPath(pp), dir: dir, style: style);
+  }
 
-  String _buildSouthPath(PathParms pp) => col == maxCol - 1
-      ? 'v $pieceHeight'
-      : ((StringBuffer())
-            ..write('v ${pp.beforeC}')
-            ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-            ..write(' v ${pp.afterC}'))
-          .toString();
+  Edge _buildWestEdge(PathParms pp, EdgeStyle style) {
+    const dir = Dir.w;
+    final key = 0; // TODO get next key from preferences.
+    return row == maxRow - 1
+        ? Edge(path: 'h ${-pieceWidth}', dir: dir, style: EdgeStyle.line)
+        : Edge(key: key, path: getHorizontalPath(pp), dir: dir, style: style);
+  }
 
-  String _buildNorthtPath(PathParms pp) => col == 0
-      ? 'v ${-pieceHeight}'
-      : ((StringBuffer())
-            ..write('v ${pp.beforeC}')
-            ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-            ..write(' v ${pp.afterC}'))
-          .toString();
+  Edge _buildNorthEdge(PathParms pp, EdgeStyle style) {
+    const dir = Dir.n;
+    final key = 0; // TODO get next key from preferences.
+    return col == 0
+        ? Edge(path: 'v ${-pieceHeight}', dir: dir, style: EdgeStyle.line)
+        : Edge(key: key, path: getVerticalPath(pp), dir: dir, style: style);
+  }
+
+  //  row == maxRow - 1
+  //     ? 'h ${-pieceWidth}'
+  //     : ((StringBuffer())
+  //           ..write('h ${pp.beforeC}')
+  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
+  //           ..write(' h ${pp.afterC}'))
+  //         .toString();
+
+  // Edge _buildSouthEdge(PathParms pp) => col == maxCol - 1
+  //     ? 'v $pieceHeight'
+  //     : ((StringBuffer())
+  //           ..write('v ${pp.beforeC}')
+  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
+  //           ..write(' v ${pp.afterC}'))
+  //         .toString();
+
+  // Edge _buildNorthtEdge(PathParms pp) => col == 0
+  //     ? 'v ${-pieceHeight}'
+  //     : ((StringBuffer())
+  //           ..write('v ${pp.beforeC}')
+  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
+  //           ..write(' v ${pp.afterC}'))
+  //         .toString();
 }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
-class Piece {
-  final EdgePath e;
-  final EdgePath s;
-  final EdgePath w;
-  final EdgePath n;
-  Piece({
-    required this.e,
-    required this.s,
-    required this.w,
-    required this.n,
-  });
-}
+String getHorizontalPath(PathParms pp) => ((StringBuffer())
+      ..write('h ${pp.beforeC}')
+      ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
+      ..write(' h ${pp.afterC}'))
+    .toString();
+
+String getVerticalPath(PathParms pp) => ((StringBuffer())
+      ..write('v ${pp.beforeC}')
+      ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
+      ..write(' v ${pp.afterC}'))
+    .toString();
 
 class PathParms {
   final double beforeC;
@@ -207,6 +218,49 @@ class PathParms {
       p5: p5 ?? this.p5,
       p6: p6 ?? this.p6,
       afterC: afterC ?? this.afterC,
+    );
+  }
+}
+
+class PiecePath {
+  final double offsetX;
+  final double offsetY;
+  final Edge e;
+  final Edge s;
+  final Edge w;
+  final Edge n;
+  PiecePath({
+    required this.offsetX,
+    required this.offsetY,
+    required this.e,
+    required this.s,
+    required this.w,
+    required this.n,
+  });
+
+  Path get path => parseSvgPathData(
+      'm $offsetX $offsetY ${e.path} ${s.path} ${w.path} ${n.path}');
+
+  /// Prints as path string.
+  @override
+  String toString() =>
+      'm $offsetX $offsetY ${e.path} ${s.path} ${w.path} ${n.path}';
+
+  PiecePath copyWith({
+    double? offsetX,
+    double? offsetY,
+    Edge? e,
+    Edge? s,
+    Edge? w,
+    Edge? n,
+  }) {
+    return PiecePath(
+      offsetX: offsetX ?? this.offsetX,
+      offsetY: offsetY ?? this.offsetY,
+      e: e ?? this.e,
+      s: s ?? this.s,
+      w: w ?? this.w,
+      n: n ?? this.n,
     );
   }
 }

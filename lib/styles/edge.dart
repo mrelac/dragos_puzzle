@@ -13,7 +13,6 @@ enum EdgeStyle { bump, cut, line }
 /// This class describes a single edge's unique [key], [path], [dir] and [style].
 /// [key] uniquely identifies the edge, unless the edge style is [EdgeStyle.line],
 /// in which case [key] is not used.
-// TODO - Rename file to edge.dart
 class Edge {
   final int? key;
   final String path;

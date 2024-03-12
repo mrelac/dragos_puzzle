@@ -2,20 +2,34 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dragos_puzzle/puzzle_piece.dart';
+import 'package:dragos_puzzle/prepare_new_puzzle.dart';
+import 'package:dragos_puzzle/rc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+/// Image size itted to device
 late Size imageSize;
 
-void main() => runApp(const MyApp());
+/// Size of device
+late Size playSize;
+
+/// Number of rows and columns for selected puzzle.
+final RC maxRC = RC(row: 3, col: 3);
+
+/// Chosen puzzle image
+late Image image;
+
+void main() async {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    playSize = MediaQuery.of(context).size;
     return MaterialApp(
       title: 'Flutter Puzzle',
       debugShowCheckedModeBanner: false,
@@ -33,8 +47,6 @@ class MyHomePage extends StatefulWidget {
     super.key,
     required this.title,
   });
-  final int rows = 3;
-  final int cols = 3;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -48,18 +60,23 @@ class _MyHomePageState extends State<MyHomePage> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
     );
-
     if (result == null) return;
 
+    // TODO For better readabililty, move setState to *after* imageSize computation.
     setState(() {
       _image = File(result.paths.first!);
       pieces.clear();
     });
-    splitImage(Image.file(File(result.paths.first!)));
+
+    image = Image.file(File(result.paths.first!));
+    final fullSize = await _getImageSize(image);
+    imageSize = fitImage(playSize, playSize.aspectRatio, fullSize.aspectRatio);
+    final loader = PuzzleLoader();
+    setState(() => pieces = loader.getPieces());
   }
 
   /// Returns [image] size.
-  Future<Size> getImageSize(Image image) {
+  Future<Size> _getImageSize(Image image) {
     Completer<Size> completer = Completer();
     image.image.resolve(const ImageConfiguration()).addListener(
         ImageStreamListener((ImageInfo imageInfo, bool synchronousCall) {
@@ -71,29 +88,12 @@ class _MyHomePageState extends State<MyHomePage> {
     return completer.future;
   }
 
-  // here we will split the image into small pieces using the rows and columns defined above; each piece will be added to a stack
-  void splitImage(Image image) async {
-    final playSize = MediaQuery.of(context).size;
-    final imageSize = await getImageSize(image);
-
-    for (int x = 0; x < widget.rows; x++) {
-      for (int y = 0; y < widget.cols; y++) {
-        setState(() {
-          pieces.add(PuzzlePiece(
-              playSize: playSize,
-              key: GlobalKey(),
-              image: image,
-              imageSize: imageSize,
-              row: x,
-              col: y,
-              maxRow: widget.rows,
-              maxCol: widget.cols,
-              bringToTop: bringToTop,
-              sendToBack: sendToBack));
-        });
-      }
-    }
-  }
+  /// Returns a [Size] optimised for the device based on the device aspect ratio
+  /// and the full image aspect ratio.
+  Size fitImage(Size playsize, double playsizeAr, double imageAr) =>
+      playsizeAr > 1
+          ? Size(playsize.height * imageAr, playsize.height)
+          : Size(playsize.width, imageAr * playsize.width);
 
   // when the pan of a piece starts, we need to bring it to the front of the stack
   void bringToTop(Widget widget) {

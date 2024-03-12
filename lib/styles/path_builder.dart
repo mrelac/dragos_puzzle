@@ -1,34 +1,29 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/styles/edge.dart';
 import 'package:flutter/material.dart';
-import 'package:path_drawing/path_drawing.dart';
 
-/// This class generates and stores all svg [Path] strings for the given parameters.
+/// Generates all possible [Edge] instances from the given parameters.
+/// These instances are used to assign random [Path]s for each [PiecePath].
 class PathBuilder {
-  final Size size;
   final int row;
   final int col;
-  final int maxRow;
-  final int maxCol;
   final double pieceWidth;
   final double pieceHeight;
   late final double offsetX;
   late final double offsetY;
   late final double bumpSize;
 
-  final easts = <Edge>[];
-  final souths = <Edge>[];
-  final wests = <Edge>[];
-  final norths = <Edge>[];
+  final easts = <EdgePair>[];
+  final souths = <EdgePair>[];
+  final wests = <EdgePair>[];
+  final norths = <EdgePair>[];
 
-  PathBuilder({
-    required this.size,
-    required this.row,
-    required this.col,
-    required this.maxRow,
-    required this.maxCol,
-  })  : pieceWidth = size.width / maxCol,
-        pieceHeight = size.height / maxRow {
+  PathBuilder(
+    this.row,
+    this.col,
+  )   : pieceWidth = imageSize.width / maxRC.col,
+        pieceHeight = imageSize.height / maxRC.row {
     offsetX = col * pieceWidth;
     offsetY = row * pieceHeight;
     bumpSize = pieceHeight / 4;
@@ -43,25 +38,22 @@ class PathBuilder {
     final northCutParms = _flipVertical(northBumpParms);
 
     easts.addAll([
-      _buildEastEdge(eastBumpParms, EdgeStyle.bump),
-      _buildEastEdge(eastCutParms, EdgeStyle.cut),
+      _buildEastEdgePair(eastBumpParms, EdgeStyle.bump),
+      _buildEastEdgePair(eastCutParms, EdgeStyle.cut),
     ]);
     souths.addAll([
-      _buildSouthEdge(southBumpParms, EdgeStyle.bump),
-      _buildSouthEdge(southCutParms, EdgeStyle.cut),
+      _buildSouthEdgePair(southBumpParms, EdgeStyle.bump),
+      _buildSouthEdgePair(southCutParms, EdgeStyle.cut),
     ]);
     wests.addAll([
-      _buildWestEdge(westBumpParms, EdgeStyle.bump),
-      _buildWestEdge(westCutParms, EdgeStyle.cut),
+      _buildWestEdgePair(westBumpParms, EdgeStyle.bump),
+      _buildWestEdgePair(westCutParms, EdgeStyle.cut),
     ]);
     norths.addAll([
-      _buildNorthEdge(northBumpParms, EdgeStyle.bump),
-      _buildNorthEdge(northCutParms, EdgeStyle.cut),
+      _buildNorthEdgePair(northBumpParms, EdgeStyle.bump),
+      _buildNorthEdgePair(northCutParms, EdgeStyle.cut),
     ]);
   }
-
-  /// Returns the svg-relative 'm' path component.
-  String createM() => 'm $offsetX $offsetY';
 
   /// Returns [PathParms] bump [pp] as cut or cut[pp] as bump for horizontal path.
   PathParms _flipHorizontal(PathParms pp) =>
@@ -110,61 +102,55 @@ class PathBuilder {
       p6: pieceHeight / 3,
       afterC: pieceHeight / 3);
 
-  Edge _buildEastEdge(PathParms pp, EdgeStyle style) {
-    const dir = Dir.e;
-    final key = 0; // TODO get next key from preferences.
-    return row == 0
-        ? Edge(path: 'h $pieceWidth', dir: dir, style: EdgeStyle.line)
-        : Edge(key: key, path: getHorizontalPath(pp), dir: dir, style: style);
+  EdgePair _buildEastEdgePair(PathParms pp, EdgeStyle style) {
+    if (row == 0) {
+      return EdgePair(
+          Edge(path: 'h $pieceWidth', dir: Dir.e, style: EdgeStyle.line),
+          Edge(path: 'h ${-pieceWidth}', dir: Dir.w, style: EdgeStyle.line));
+    } else {
+      final ppMate = _reverseHorizontal(_flipHorizontal(pp));
+      return EdgePair(
+          Edge(path: getHorizontalPath(pp), dir: Dir.e, style: style),
+          Edge(path: getHorizontalPath(ppMate), dir: Dir.w, style: style));
+    }
   }
 
-  Edge _buildSouthEdge(PathParms pp, EdgeStyle style) {
-    const dir = Dir.s;
-    final key = 0; // TODO get next key from preferences.
-    return col == maxCol - 1
-        ? Edge(path: 'v $pieceHeight', dir: dir, style: EdgeStyle.line)
-        : Edge(key: key, path: getVerticalPath(pp), dir: dir, style: style);
+  EdgePair _buildSouthEdgePair(PathParms pp, EdgeStyle style) {
+    if (col == maxRC.col - 1) {
+      return EdgePair(
+          Edge(path: 'v $pieceHeight', dir: Dir.s, style: EdgeStyle.line),
+          Edge(path: 'h ${-pieceHeight}', dir: Dir.n, style: EdgeStyle.line));
+    } else {
+      final ppMate = _reverseVertical(_flipVertical(pp));
+      return EdgePair(Edge(path: getVerticalPath(pp), dir: Dir.s, style: style),
+          Edge(path: getVerticalPath(ppMate), dir: Dir.n, style: style));
+    }
   }
 
-  Edge _buildWestEdge(PathParms pp, EdgeStyle style) {
-    const dir = Dir.w;
-    final key = 0; // TODO get next key from preferences.
-    return row == maxRow - 1
-        ? Edge(path: 'h ${-pieceWidth}', dir: dir, style: EdgeStyle.line)
-        : Edge(key: key, path: getHorizontalPath(pp), dir: dir, style: style);
+  EdgePair _buildWestEdgePair(PathParms pp, EdgeStyle style) {
+    if (row == maxRC.row - 1) {
+      return EdgePair(
+          Edge(path: 'h ${-pieceWidth}', dir: Dir.w, style: EdgeStyle.line),
+          Edge(path: 'h $pieceWidth', dir: Dir.e, style: EdgeStyle.line));
+    } else {
+      final ppMate = _reverseHorizontal(_flipHorizontal(pp));
+      return EdgePair(
+          Edge(path: getHorizontalPath(pp), dir: Dir.e, style: style),
+          Edge(path: getHorizontalPath(ppMate), dir: Dir.w, style: style));
+    }
   }
 
-  Edge _buildNorthEdge(PathParms pp, EdgeStyle style) {
-    const dir = Dir.n;
-    final key = 0; // TODO get next key from preferences.
-    return col == 0
-        ? Edge(path: 'v ${-pieceHeight}', dir: dir, style: EdgeStyle.line)
-        : Edge(key: key, path: getVerticalPath(pp), dir: dir, style: style);
+  EdgePair _buildNorthEdgePair(PathParms pp, EdgeStyle style) {
+    if (col == 0) {
+      return EdgePair(
+          Edge(path: 'v ${-pieceHeight}', dir: Dir.n, style: EdgeStyle.line),
+          Edge(path: 'v $pieceHeight', dir: Dir.s, style: EdgeStyle.line));
+    } else {
+      final ppMate = _reverseVertical(_flipVertical(pp));
+      return EdgePair(Edge(path: getVerticalPath(pp), dir: Dir.n, style: style),
+          Edge(path: getVerticalPath(ppMate), dir: Dir.s, style: style));
+    }
   }
-
-  //  row == maxRow - 1
-  //     ? 'h ${-pieceWidth}'
-  //     : ((StringBuffer())
-  //           ..write('h ${pp.beforeC}')
-  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-  //           ..write(' h ${pp.afterC}'))
-  //         .toString();
-
-  // Edge _buildSouthEdge(PathParms pp) => col == maxCol - 1
-  //     ? 'v $pieceHeight'
-  //     : ((StringBuffer())
-  //           ..write('v ${pp.beforeC}')
-  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-  //           ..write(' v ${pp.afterC}'))
-  //         .toString();
-
-  // Edge _buildNorthtEdge(PathParms pp) => col == 0
-  //     ? 'v ${-pieceHeight}'
-  //     : ((StringBuffer())
-  //           ..write('v ${pp.beforeC}')
-  //           ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
-  //           ..write(' v ${pp.afterC}'))
-  //         .toString();
 }
 
 String getHorizontalPath(PathParms pp) => ((StringBuffer())
@@ -222,45 +208,14 @@ class PathParms {
   }
 }
 
-class PiecePath {
-  final double offsetX;
-  final double offsetY;
-  final Edge e;
-  final Edge s;
-  final Edge w;
-  final Edge n;
-  PiecePath({
-    required this.offsetX,
-    required this.offsetY,
-    required this.e,
-    required this.s,
-    required this.w,
-    required this.n,
-  });
+class EdgePair {
+  final Edge edge;
+  final Edge mate;
+  EdgePair(
+    this.edge,
+    this.mate,
+  );
 
-  Path get path => parseSvgPathData(
-      'm $offsetX $offsetY ${e.path} ${s.path} ${w.path} ${n.path}');
-
-  /// Prints as path string.
   @override
-  String toString() =>
-      'm $offsetX $offsetY ${e.path} ${s.path} ${w.path} ${n.path}';
-
-  PiecePath copyWith({
-    double? offsetX,
-    double? offsetY,
-    Edge? e,
-    Edge? s,
-    Edge? w,
-    Edge? n,
-  }) {
-    return PiecePath(
-      offsetX: offsetX ?? this.offsetX,
-      offsetY: offsetY ?? this.offsetY,
-      e: e ?? this.e,
-      s: s ?? this.s,
-      w: w ?? this.w,
-      n: n ?? this.n,
-    );
-  }
+  String toString() => 'EdgePair(path: $edge, mate: $mate)';
 }

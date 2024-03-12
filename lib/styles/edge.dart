@@ -25,6 +25,9 @@ class Edge {
     required this.style,
   });
 
+  bool get isVertical => dir == Dir.e || dir == Dir.w;
+  bool get isHorizontal => dir == Dir.s || dir == Dir.n;
+
   Edge copyWith({
     int? key,
     String? path,

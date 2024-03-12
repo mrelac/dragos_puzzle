@@ -2,7 +2,7 @@
 import 'dart:math';
 
 import 'package:dragos_puzzle/main.dart';
-import 'package:dragos_puzzle/prepare_new_puzzle.dart';
+import 'package:dragos_puzzle/puzzle_loader.dart';
 import 'package:dragos_puzzle/rc.dart';
 import 'package:dragos_puzzle/styles/path_builder.dart';
 import 'package:flutter/foundation.dart';

@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 
 const isNewPuzzle = true;
 
-// TODO - RENAME THIS FILE.
-
 class PuzzleLoader {
   int _nextEdgeKey = 1;
 
@@ -22,15 +20,15 @@ class PuzzleLoader {
     return pieces;
   }
 
-  PiecePath generatePiece(int row, int col) {
+  PiecePath _generatePiece(int row, int col) {
     final pb = PathBuilder(row, col);
     return PiecePath(
         offsetX: pb.offsetX,
         offsetY: pb.offsetY,
-        e: pb.easts[1].edge.copyWith(key: _nextEdgeKey++),
-        s: pb.souths[1].edge.copyWith(key: _nextEdgeKey++),
-        w: pb.wests[1].edge.copyWith(key: _nextEdgeKey++),
-        n: pb.norths[1].edge.copyWith(key: _nextEdgeKey++));
+        e: pb.easts[0].edge.copyWith(key: _nextEdgeKey++),
+        s: pb.souths[0].edge.copyWith(key: _nextEdgeKey++),
+        w: pb.wests[0].edge.copyWith(key: _nextEdgeKey++),
+        n: pb.norths[0].edge.copyWith(key: _nextEdgeKey++));
   }
 
   List<PuzzlePiece> _splitImage() {
@@ -38,7 +36,7 @@ class PuzzleLoader {
 
     for (int x = 0; x < maxRC.row; x++) {
       for (int y = 0; y < maxRC.col; y++) {
-        final piecePath = generatePiece(x, y);
+        final piecePath = _generatePiece(x, y);
         final piece = PuzzlePiece(
             pieces: pieces,
             piecePath: piecePath,

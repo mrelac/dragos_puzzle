@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dragos_puzzle/prepare_new_puzzle.dart';
+import 'package:dragos_puzzle/puzzle_loader.dart';
 import 'package:dragos_puzzle/rc.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';

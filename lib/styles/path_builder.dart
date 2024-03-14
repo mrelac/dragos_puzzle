@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/styles/edge.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Generates all possible [Edge] instances from the given parameters.
@@ -18,6 +19,8 @@ class PathBuilder {
   final souths = <EdgePair>[];
   final wests = <EdgePair>[];
   final norths = <EdgePair>[];
+
+  String get m => 'm $offsetX $offsetY';
 
   PathBuilder(
     this.row,
@@ -53,6 +56,35 @@ class PathBuilder {
       _buildNorthEdgePair(northBumpParms, EdgeStyle.bump),
       _buildNorthEdgePair(northCutParms, EdgeStyle.cut),
     ]);
+  }
+
+  void toStringEdges() {
+    if (kDebugMode) {
+      print('pathBuilder$row$col eastBump edge: $m ${easts[0].edge.path}');
+      print('pathBuilder$row$col eastBump mate: $m ${easts[0].mate.path}');
+      print('pathBuilder$row$col eastCut edge: $m ${easts[1].edge.path}');
+      print('pathBuilder$row$col eastCut mate: $m ${easts[1].mate.path}');
+      print('PathBuilder');
+
+      print('pathBuilder$row$col southBump edge: $m ${souths[0].edge.path}');
+      print('pathBuilder$row$col southBump mate: $m ${souths[0].mate.path}');
+      print('pathBuilder$row$col southCut edge: $m ${souths[1].edge.path}');
+      print('pathBuilder$row$col southCut mate: $m ${souths[1].mate.path}');
+      print('PathBuilder');
+
+      print('pathBuilder$row$col westBump edge: $m ${wests[0].edge.path}');
+      print('pathBuilder$row$col westBump mate: $m ${wests[0].mate.path}');
+      print('pathBuilder$row$col westCut edge: $m ${wests[1].edge.path}');
+      print('pathBuilder$row$col westCut mate: $m ${wests[1].mate.path}');
+      print('PathBuilder');
+
+      print('pathBuilder$row$col northBump edge: $m ${norths[0].edge.path}');
+      print('pathBuilder$row$col northBump mate: $m ${norths[0].mate.path}');
+      print('pathBuilder$row$col northCut edge: $m ${norths[1].edge.path}');
+      print('pathBuilder$row$col northCut mate: $m ${norths[1].mate.path}');
+      print('PathBuilder');
+      print('PathBuilder');
+    }
   }
 
   /// Returns [PathParms] bump [pp] as cut or cut[pp] as bump for horizontal path.
@@ -108,7 +140,7 @@ class PathBuilder {
           Edge(path: 'h $pieceWidth', dir: Dir.e, style: EdgeStyle.line),
           Edge(path: 'h ${-pieceWidth}', dir: Dir.w, style: EdgeStyle.line));
     } else {
-      final ppMate = _reverseHorizontal(_flipHorizontal(pp));
+      final ppMate = _reverseHorizontal(pp);
       return EdgePair(
           Edge(path: getHorizontalPath(pp), dir: Dir.e, style: style),
           Edge(path: getHorizontalPath(ppMate), dir: Dir.w, style: style));
@@ -121,7 +153,7 @@ class PathBuilder {
           Edge(path: 'v $pieceHeight', dir: Dir.s, style: EdgeStyle.line),
           Edge(path: 'h ${-pieceHeight}', dir: Dir.n, style: EdgeStyle.line));
     } else {
-      final ppMate = _reverseVertical(_flipVertical(pp));
+      final ppMate = _reverseVertical(pp);
       return EdgePair(Edge(path: getVerticalPath(pp), dir: Dir.s, style: style),
           Edge(path: getVerticalPath(ppMate), dir: Dir.n, style: style));
     }
@@ -133,7 +165,7 @@ class PathBuilder {
           Edge(path: 'h ${-pieceWidth}', dir: Dir.w, style: EdgeStyle.line),
           Edge(path: 'h $pieceWidth', dir: Dir.e, style: EdgeStyle.line));
     } else {
-      final ppMate = _reverseHorizontal(_flipHorizontal(pp));
+      final ppMate = _reverseHorizontal(pp);
       return EdgePair(
           Edge(path: getHorizontalPath(pp), dir: Dir.e, style: style),
           Edge(path: getHorizontalPath(ppMate), dir: Dir.w, style: style));
@@ -146,7 +178,7 @@ class PathBuilder {
           Edge(path: 'v ${-pieceHeight}', dir: Dir.n, style: EdgeStyle.line),
           Edge(path: 'v $pieceHeight', dir: Dir.s, style: EdgeStyle.line));
     } else {
-      final ppMate = _reverseVertical(_flipVertical(pp));
+      final ppMate = _reverseVertical(pp);
       return EdgePair(Edge(path: getVerticalPath(pp), dir: Dir.n, style: style),
           Edge(path: getVerticalPath(ppMate), dir: Dir.s, style: style));
     }

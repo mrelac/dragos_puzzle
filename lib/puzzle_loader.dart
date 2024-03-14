@@ -10,6 +10,14 @@ const isNewPuzzle = true;
 
 class PuzzleLoader {
   int _nextEdgeKey = 1;
+  final Image image;
+  final Function bringToTop;
+  final Function sendToBack;
+  PuzzleLoader({
+    required this.image,
+    required this.bringToTop,
+    required this.sendToBack,
+  });
 
   /// Returns all puzzle pieces from storage.
   List<PuzzlePiece> getPieces() {
@@ -22,6 +30,7 @@ class PuzzleLoader {
 
   PiecePath _generatePiece(int row, int col) {
     final pb = PathBuilder(row, col);
+    pb.toStringEdges();
     return PiecePath(
         offsetX: pb.offsetX,
         offsetY: pb.offsetY,
@@ -38,7 +47,6 @@ class PuzzleLoader {
       for (int y = 0; y < maxRC.col; y++) {
         final piecePath = _generatePiece(x, y);
         final piece = PuzzlePiece(
-            pieces: pieces,
             piecePath: piecePath,
             playSize: playSize,
             key: GlobalKey(),
@@ -47,11 +55,13 @@ class PuzzleLoader {
             row: x,
             col: y,
             maxRow: maxRC.row,
-            maxCol: maxRC.col);
+            maxCol: maxRC.col,
+            bringToTop: bringToTop,
+            sendToBack: sendToBack);
 
         pieces.add(piece);
         if (kDebugMode) {
-          print('rc$x$y piecePath edges: ${piecePath.edges}');
+          print('rc$x$y piecePath: ${piecePath.toString()}');
 
           print(
               'KEYS (edge ($x, $y): e:(${piecePath.e.key},  s:(${piecePath.s.key},  w:(${piecePath.w.key},  n:(${piecePath.n.key})');

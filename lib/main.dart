@@ -17,13 +17,11 @@ late Size playSize;
 /// Number of rows and columns for selected puzzle.
 final RC maxRC = RC(row: 3, col: 3);
 
-/// Chosen puzzle image
-late Image image;
-
 void main() async {
   runApp(const MyApp());
 }
 
+/// Taken from https://github.com/dragosholban/flutter_puzzle
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -62,17 +60,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     if (result == null) return;
 
-    // TODO For better readabililty, move setState to *after* imageSize computation.
-    setState(() {
-      _image = File(result.paths.first!);
-      pieces.clear();
-    });
-
-    image = Image.file(File(result.paths.first!));
+    final image = Image.file(File(result.paths.first!));
     final fullSize = await _getImageSize(image);
     imageSize = fitImage(playSize, playSize.aspectRatio, fullSize.aspectRatio);
-    final loader = PuzzleLoader();
-    setState(() => pieces = loader.getPieces());
+    final loader = PuzzleLoader(
+        image: image, bringToTop: bringToTop, sendToBack: sendToBack);
+    setState(() {
+      _image = File(result.paths.first!);
+      pieces
+        ..clear()
+        ..addAll(loader.getPieces());
+    });
   }
 
   /// Returns [image] size.

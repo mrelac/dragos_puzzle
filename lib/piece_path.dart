@@ -25,7 +25,7 @@ class PiecePath {
   /// Prints as path string.
   @override
   String toString() =>
-      'm $offsetX $offsetY ${e.path} ${s.path} ${w.path} ${n.path}';
+      'm $offsetX $offsetY ${e.edge} ${s.edge} ${w.edge} ${n.edge} z';
 
   String get edges => 'e: $e. s: $s. w: $w. n: $n';
 

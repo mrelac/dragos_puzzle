@@ -1,47 +1,40 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-/// Describes the path direction in directional terms.
-enum Dir {
-  e, // east
-  s, // south
-  w, // west
-  n // north
-}
-
-enum EdgeStyle { bump, cut, line }
-
-/// This class describes a single edge's unique [key], [path], [dir] and [style].
-/// [key] uniquely identifies the edge, unless the edge style is [EdgeStyle.line],
-/// in which case [key] is not used.
+/// Encapsulates a path edge and mate with optional key.
+/// [edge] is the svg path string. [mate] is the edge's compliment
+/// that should produce a path that fits [edge]. [mate] should be [path]
+/// drawn in the opposite direction and with a flipped style. [key] binds the
+/// path and mate.
+/// In the case of borders, neither [mate] nor [key] is needed, as borders
+/// do not have mates.
 class Edge {
   final int? key;
-  final String path;
-  final Dir dir;
-  final EdgeStyle style;
+  final String edge;
+  final String mate;
+  final String mateFlipped;
+
   Edge({
     this.key,
-    required this.path,
-    required this.dir,
-    required this.style,
+    required this.edge,
+    this.mate = '',
+    this.mateFlipped = '',
   });
-
-  bool get isVertical => dir == Dir.e || dir == Dir.w;
-  bool get isHorizontal => dir == Dir.s || dir == Dir.n;
 
   Edge copyWith({
     int? key,
-    String? path,
-    Dir? dir,
-    EdgeStyle? style,
+    String? edge,
+    String? mate,
+    String? flippedMate,
   }) {
     return Edge(
       key: key ?? this.key,
-      path: path ?? this.path,
-      dir: dir ?? this.dir,
-      style: style ?? this.style,
+      edge: edge ?? this.edge,
+      mate: mate ?? this.mate,
+      mateFlipped: flippedMate ?? this.mateFlipped,
     );
   }
 
   @override
-  String toString() => 'Edge(key: $key, path: $path, dir: $dir, style: $style)';
+  String toString() =>
+      'Edge(key: $key, edge: $edge, mate: $mate, mateFlipped: $mateFlipped)';
 }

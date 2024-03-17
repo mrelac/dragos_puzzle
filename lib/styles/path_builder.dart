@@ -91,7 +91,7 @@ class PathBuilder {
     if (row == 0) return Edge(edge: 'h $pieceWidth');
     // // return Edge(edge: prevRow!.e.mate);
     // return generateSouth();
-    return Edge(edge: prevRow!.w.mate);
+    return Edge(edge: prevRow!.w.mateFlipped);
   }
 
   /// Returns random edge, or vert line if right border edge piece.
@@ -101,7 +101,7 @@ class PathBuilder {
     final parms = next ? _southBumpParms : _southCutParms;
     print('pp$row$col GENERATED South ${next ? "Bump" : "Cut"}');
     // final parms = (Random().nextBool()) ? _southBumpParms : _southCutParms;
-    return Edge(edge: getVerticalEdge(parms), mate: getVerticalMate(parms));
+    return Edge(edge: getVerticalEdge(parms), mate: getVerticalMate(parms), mateFlipped: getVerticalMateFlipped(parms));
   }
 
   /// Returns random edge, or horiz line if bottom border edge piece.
@@ -111,13 +111,16 @@ class PathBuilder {
     final parms = next ? _westBumpParms : _westCutParms;
     // final parms = (Random().nextBool()) ? _westBumpParms : _westCutParms;
     print('pp$row$col GENERATED West ${next ? "Bump" : "Cut"}');
-    return Edge(edge: getHorizontalEdge(parms), mate: getHorizontalMate(parms));
+    return Edge(
+        edge: getHorizontalEdge(parms),
+        mate: getHorizontalMate(parms),
+        mateFlipped: getHorizontalMateFlipped(parms));
   }
 
   /// Returns prev col's south mate, or vert line if left border edge piece.
   Edge generateNorth(PiecePath? prevCol) {
     if (col == 0) return Edge(edge: 'v ${-pieceHeight}');
-    return Edge(edge: prevCol!.s.mate);
+    return Edge(edge: prevCol!.s.mateFlipped);
   }
 
   PathParms get _eastBumpParms => PathParms(
@@ -167,7 +170,13 @@ class PathBuilder {
   String getHorizontalMate(PathParms pp) =>
       getHorizontalEdge(_reverseHorizontal(pp));
 
+  String getHorizontalMateFlipped(PathParms pp) =>
+      getHorizontalEdge(_reverseHorizontal(_flipHorizontal(pp)));
+
   String getVerticalMate(PathParms pp) => getVerticalEdge(_reverseVertical(pp));
+
+  String getVerticalMateFlipped(PathParms pp) =>
+      getVerticalEdge(_reverseVertical(_flipVertical(pp)));
 }
 
 class PathParms {

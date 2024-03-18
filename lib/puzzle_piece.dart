@@ -43,7 +43,6 @@ class PuzzlePieceState extends State<PuzzlePiece> {
   double? top;
   double? left;
   bool isMovable = true;
-  // late Size fitSize;
   final bool isNewPuzzleSetup = true;
   late final double imageWidth;
   late final double imageHeight;
@@ -153,7 +152,7 @@ class PuzzlePiecePainter extends CustomPainter {
     final Paint paint = Paint()
       ..color = const Color(0x80FFFFFF)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 10.0;
+      ..strokeWidth = 1.0;
     canvas.drawPath(getPiecePath(piecePath), paint);
   }
 

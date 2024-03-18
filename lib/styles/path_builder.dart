@@ -4,10 +4,11 @@ import 'dart:math';
 import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/piece_path.dart';
 import 'package:dragos_puzzle/styles/edge.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Generates all possible [Edge] instances from the given parameters.
+int nextEdgeKey = 1;
+
+/// Generates [Edge] instances from the given parameters.
 /// These instances are used to assign random [Path]s for each [PiecePath].
 class PathBuilder {
   final int row;
@@ -28,35 +29,6 @@ class PathBuilder {
     offsetX = col * pieceWidth;
     offsetY = row * pieceHeight;
     bumpSize = pieceHeight / 4;
-  }
-
-  void printAllEdges() {
-    if (kDebugMode) {
-      // print('pathBuilder$row$col eastBump edge: $m ${easts[0].edge.path}');
-      // print('pathBuilder$row$col eastBump mate: $m ${easts[0].mate.path}');
-      // print('pathBuilder$row$col eastCut edge: $m ${easts[1].edge.path}');
-      // print('pathBuilder$row$col eastCut mate: $m ${easts[1].mate.path}');
-      // print('PathBuilder2');
-
-      // print('pathBuilder$row$col southBump edge: $m ${souths[0].edge.path}');
-      // print('pathBuilder$row$col southBump mate: $m ${souths[0].mate.path}');
-      // print('pathBuilder$row$col southCut edge: $m ${souths[1].edge.path}');
-      // print('pathBuilder$row$col southCut mate: $m ${souths[1].mate.path}');
-      // print('PathBuilder2');
-
-      // print('pathBuilder$row$col westBump edge: $m ${wests[0].edge.path}');
-      // print('pathBuilder$row$col westBump mate: $m ${wests[0].mate.path}');
-      // print('pathBuilder$row$col westCut edge: $m ${wests[1].edge.path}');
-      // print('pathBuilder$row$col westCut mate: $m ${wests[1].mate.path}');
-      // print('PathBuilder2');
-
-      // print('pathBuilder$row$col northBump edge: $m ${norths[0].edge.path}');
-      // print('pathBuilder$row$col northBump mate: $m ${norths[0].mate.path}');
-      // print('pathBuilder$row$col northCut edge: $m ${norths[1].edge.path}');
-      // print('pathBuilder$row$col northCut mate: $m ${norths[1].mate.path}');
-      // print('PathBuilder2');
-      // print('PathBuilder2');
-    }
   }
 
   /// Returns [PathParms] bump [pp] as cut or cut[pp] as bump for horizontal path.
@@ -87,41 +59,34 @@ class PathBuilder {
       afterC: -pp.beforeC);
 
   /// Returns prev row's east mate, or horiz line if top border edge piece.
-  Edge generateEast(PiecePath? prevRow) {
-    if (row == 0) return Edge(edge: 'h $pieceWidth');
-    // // return Edge(edge: prevRow!.e.mate);
-    // return generateSouth();
-    return Edge(edge: prevRow!.w.mateFlipped);
-  }
+  Edge generateEast(PiecePath? prevRow) => row == 0
+      ? Edge(edge: 'h $pieceWidth')
+      : Edge(edge: prevRow!.w.mate, key: prevRow.w.key);
 
   /// Returns random edge, or vert line if right border edge piece.
   Edge generateSouth() {
     if (col == maxRC.col - 1) return Edge(edge: 'v $pieceHeight');
-    final bool next = Random().nextBool();
-    final parms = next ? _southBumpParms : _southCutParms;
-    print('pp$row$col GENERATED South ${next ? "Bump" : "Cut"}');
-    // final parms = (Random().nextBool()) ? _southBumpParms : _southCutParms;
-    return Edge(edge: getVerticalEdge(parms), mate: getVerticalMate(parms), mateFlipped: getVerticalMateFlipped(parms));
+    final parms = (Random().nextBool()) ? _southBumpParms : _southCutParms;
+    return Edge(
+        edge: getVerticalEdge(parms),
+        mate: getVerticalMate(parms),
+        key: nextEdgeKey++);
   }
 
   /// Returns random edge, or horiz line if bottom border edge piece.
   Edge generateWest() {
     if (row == maxRC.row - 1) return Edge(edge: 'h ${-pieceWidth}');
-    final bool next = Random().nextBool();
-    final parms = next ? _westBumpParms : _westCutParms;
-    // final parms = (Random().nextBool()) ? _westBumpParms : _westCutParms;
-    print('pp$row$col GENERATED West ${next ? "Bump" : "Cut"}');
+    final parms = (Random().nextBool()) ? _westBumpParms : _westCutParms;
     return Edge(
         edge: getHorizontalEdge(parms),
         mate: getHorizontalMate(parms),
-        mateFlipped: getHorizontalMateFlipped(parms));
+        key: nextEdgeKey++);
   }
 
   /// Returns prev col's south mate, or vert line if left border edge piece.
-  Edge generateNorth(PiecePath? prevCol) {
-    if (col == 0) return Edge(edge: 'v ${-pieceHeight}');
-    return Edge(edge: prevCol!.s.mateFlipped);
-  }
+  Edge generateNorth(PiecePath? prevCol) => col == 0
+      ? Edge(edge: 'v ${-pieceHeight}')
+      : Edge(edge: prevCol!.s.mate, key: prevCol.s.key);
 
   PathParms get _eastBumpParms => PathParms(
       beforeC: pieceWidth / 3,
@@ -151,10 +116,6 @@ class PathBuilder {
 
   PathParms get _southCutParms => _flipVertical(_southBumpParms);
 
-  PathParms get _northBumpParms => _reverseVertical(_southBumpParms);
-
-  PathParms get _northCutParms => _reverseVertical(_southCutParms);
-
   String getHorizontalEdge(PathParms pp) => ((StringBuffer())
         ..write('h ${pp.beforeC}')
         ..write(' c ${pp.p1} ${pp.p2} ${pp.p3} ${pp.p4} ${pp.p5} ${pp.p6}')
@@ -167,15 +128,13 @@ class PathBuilder {
         ..write(' v ${pp.afterC}'))
       .toString();
 
-  String getHorizontalMate(PathParms pp) =>
+  String getHorizontalMateXXX(PathParms pp) =>
       getHorizontalEdge(_reverseHorizontal(pp));
 
-  String getHorizontalMateFlipped(PathParms pp) =>
+  String getHorizontalMate(PathParms pp) =>
       getHorizontalEdge(_reverseHorizontal(_flipHorizontal(pp)));
 
-  String getVerticalMate(PathParms pp) => getVerticalEdge(_reverseVertical(pp));
-
-  String getVerticalMateFlipped(PathParms pp) =>
+  String getVerticalMate(PathParms pp) =>
       getVerticalEdge(_reverseVertical(_flipVertical(pp)));
 }
 

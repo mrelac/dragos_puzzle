@@ -11,30 +11,22 @@ class Edge {
   final int? key;
   final String edge;
   final String mate;
-  final String mateFlipped;
 
   Edge({
     this.key,
     required this.edge,
     this.mate = '',
-    this.mateFlipped = '',
   });
 
   Edge copyWith({
     int? key,
     String? edge,
     String? mate,
-    String? flippedMate,
   }) {
     return Edge(
-      key: key ?? this.key,
-      edge: edge ?? this.edge,
-      mate: mate ?? this.mate,
-      mateFlipped: flippedMate ?? this.mateFlipped,
-    );
+        key: key ?? this.key, edge: edge ?? this.edge, mate: mate ?? this.mate);
   }
 
   @override
-  String toString() =>
-      'Edge(key: $key, edge: $edge, mate: $mate, mateFlipped: $mateFlipped)';
+  String toString() => 'Edge(key: $key, edge: $edge, mate: $mate)';
 }

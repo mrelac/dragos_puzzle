@@ -38,7 +38,6 @@ class PuzzleLoader {
 
 class PiecesGenerator {
   final ppMap = <RC, PiecePath>{};
-  int _nextEdgeKey = 1;
   final Image image;
   final Function bringToTop;
   final Function sendToBack;
@@ -72,33 +71,28 @@ class PiecesGenerator {
 
     final pp = PiecePath(
         offsetX: pb.offsetX, offsetY: pb.offsetY, e: e, s: s, w: w, n: n);
-    // e: _getEast(pb),
-    // s: _getSouth(pb),
-    // w: _getWest(pb),
-    // n: _getNorth(pb));
     ppMap[RC(row: pb.row, col: pb.col)] = pp;
-
-    print(
-        'pp${pb.row}${pb.col} all:   m ${pb.offsetX} ${pb.offsetY} ${e.edge} ${s.edge} ${w.edge} ${n.edge}');
-    print(
-        'pp${pb.row}${pb.col} east:  m ${pb.offsetX} ${pb.offsetY} ${e.edge}       m ${pb.offsetX} ${pb.offsetY} ${e.mate}       m ${pb.offsetX} ${pb.offsetY} ${e.mateFlipped}');
-    print(
-        'pp${pb.row}${pb.col} south: m ${pb.offsetX} ${pb.offsetY} ${s.edge}       m ${pb.offsetX} ${pb.offsetY} ${s.mate}       m ${pb.offsetX} ${pb.offsetY} ${s.mateFlipped}');
-    print(
-        'pp${pb.row}${pb.col} west:  m ${pb.offsetX} ${pb.offsetY} ${w.edge}       m ${pb.offsetX} ${pb.offsetY} ${w.mate}       m ${pb.offsetX} ${pb.offsetY} ${w.mateFlipped}');
-    print(
-        'pp${pb.row}${pb.col} north: m ${pb.offsetX} ${pb.offsetY} ${n.edge}       m ${pb.offsetX} ${pb.offsetY} ${n.mate}       m ${pb.offsetX} ${pb.offsetY} ${n.mateFlipped}');
-    print('pp${pb.row}${pb.col}');
+    if (kDebugMode) {
+      print(
+          'pp${pb.row}${pb.col} all:   m ${pb.offsetX} ${pb.offsetY} ${e.edge} ${s.edge} ${w.edge} ${n.edge}');
+      print(
+          'pp${pb.row}${pb.col} east:  m ${pb.offsetX} ${pb.offsetY} ${e.edge}       m ${pb.offsetX} ${pb.offsetY} ${e.mate}    key: ${e.key}');
+      print(
+          'pp${pb.row}${pb.col} south: m ${pb.offsetX} ${pb.offsetY} ${s.edge}       m ${pb.offsetX} ${pb.offsetY} ${s.mate}    key: ${s.key}');
+      print(
+          'pp${pb.row}${pb.col} west:  m ${pb.offsetX} ${pb.offsetY} ${w.edge}       m ${pb.offsetX} ${pb.offsetY} ${w.mate}    key: ${w.key}');
+      print(
+          'pp${pb.row}${pb.col} north: m ${pb.offsetX} ${pb.offsetY} ${n.edge}       m ${pb.offsetX} ${pb.offsetY} ${n.mate}    key: ${n.key}');
+      print('pp${pb.row}${pb.col}');
+    }
     return pp;
   }
 
   List<PuzzlePiece> splitImage() {
+    nextEdgeKey = 1;
     final pieces = <PuzzlePiece>[];
     for (int x = 0; x < maxRC.row; x++) {
       for (int y = 0; y < maxRC.col; y++) {
-        if (x == 1) {
-          print('');
-        }
         final pb = PathBuilder(x, y);
         final piecePath = _generatePiece(pb);
         final piece = PuzzlePiece(
@@ -118,7 +112,7 @@ class PiecesGenerator {
           print('rc$x$y piecePath: ${piecePath.toString()}');
 
           print(
-              'KEYS (edge ($x, $y): e:(${piecePath.e.key},  s:(${piecePath.s.key},  w:(${piecePath.w.key},  n:(${piecePath.n.key})');
+              'rc$x$y KEYS: e: ${piecePath.e.key},  s: ${piecePath.s.key},  w: ${piecePath.w.key},  n: ${piecePath.n.key}');
         }
       }
     }

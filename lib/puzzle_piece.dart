@@ -2,6 +2,7 @@
 import 'dart:math';
 
 import 'package:dragos_puzzle/main.dart';
+import 'package:dragos_puzzle/rc.dart';
 import 'package:flutter/material.dart';
 
 import 'piece_path.dart';
@@ -10,10 +11,8 @@ class PuzzlePiece extends StatefulWidget {
   final Size playSize;
   final Image image;
   final Size imageSize;
-  final int row;
-  final int col;
-  final int maxRow;
-  final int maxCol;
+  final RC home;
+  final RC maxRC;
   final PiecePath piecePath;
 
   final Function bringToTop;
@@ -24,10 +23,8 @@ class PuzzlePiece extends StatefulWidget {
     required this.playSize,
     required this.image,
     required this.imageSize,
-    required this.row,
-    required this.col,
-    required this.maxRow,
-    required this.maxCol,
+    required this.home,
+    required this.maxRC,
     required this.piecePath,
     required this.bringToTop,
     required this.sendToBack,
@@ -54,15 +51,15 @@ class PuzzlePieceState extends State<PuzzlePiece> {
     super.initState();
     imageWidth = imageSize.width;
     imageHeight = imageSize.height;
-    pieceWidth = imageWidth / widget.maxCol;
-    pieceHeight = imageHeight / widget.maxRow;
+    pieceWidth = imageWidth / widget.maxRC.col;
+    pieceHeight = imageHeight / widget.maxRC.row;
     if (top == null) {
       top = Random().nextInt((imageHeight - pieceHeight).ceil()).toDouble();
-      top = top! - widget.row * pieceHeight;
+      top = top! - widget.home.row * pieceHeight;
     }
     if (left == null) {
       left = Random().nextInt((imageWidth - pieceWidth).ceil()).toDouble();
-      left = left! - widget.col * pieceWidth;
+      left = left! - widget.home.col * pieceWidth;
     }
   }
 
@@ -99,11 +96,14 @@ class PuzzlePieceState extends State<PuzzlePiece> {
           }
         },
         child: ClipPath(
-          clipper: PuzzlePieceClipper(widget.piecePath, widget.row, widget.col,
-              widget.maxRow, widget.maxCol),
+          clipper: PuzzlePieceClipper(widget.piecePath, widget.home.row,
+              widget.home.col, widget.maxRC.row, widget.maxRC.col),
           child: CustomPaint(
-              foregroundPainter: PuzzlePiecePainter(widget.piecePath,
-                  widget.row, widget.col, widget.maxRow, widget.maxCol),
+              foregroundPainter: PuzzlePiecePainter(
+                widget.piecePath,
+                widget.home,
+                widget.maxRC,
+              ),
               child: widget.image),
         ),
       ),
@@ -137,15 +137,12 @@ class PuzzlePieceClipper extends CustomClipper<Path> {
 /// The overriden [paint] method's [size] parameter describes the entire
 /// image (fitted to device), not a single piece size.
 class PuzzlePiecePainter extends CustomPainter {
-  final int row;
-  final int col;
-  final int maxRow;
-  final int maxCol;
+  final RC home;
+  final RC maxRC;
 
   final PiecePath piecePath;
 
-  PuzzlePiecePainter(
-      this.piecePath, this.row, this.col, this.maxRow, this.maxCol);
+  PuzzlePiecePainter(this.piecePath, this.home, this.maxRC);
 
   @override
   void paint(Canvas canvas, Size size) {

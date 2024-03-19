@@ -48,7 +48,7 @@ class PiecesGenerator {
   });
 
   Edge _getEast(PathBuilder pb) {
-    return pb.generateEast(ppMap[RC(row: pb.row - 1, col: pb.col)]);
+    return pb.generateEast(ppMap[RC(pb.row - 1, pb.col)]);
   }
 
   Edge _getSouth(PathBuilder pb) {
@@ -60,7 +60,7 @@ class PiecesGenerator {
   }
 
   Edge _getNorth(PathBuilder pb) {
-    return pb.generateNorth(ppMap[RC(row: pb.row, col: pb.col - 1)]);
+    return pb.generateNorth(ppMap[RC(pb.row, pb.col - 1)]);
   }
 
   PiecePath _generatePiece(PathBuilder pb) {
@@ -71,7 +71,7 @@ class PiecesGenerator {
 
     final pp = PiecePath(
         offsetX: pb.offsetX, offsetY: pb.offsetY, e: e, s: s, w: w, n: n);
-    ppMap[RC(row: pb.row, col: pb.col)] = pp;
+    ppMap[RC(pb.row, pb.col)] = pp;
     if (kDebugMode) {
       print(
           'pp${pb.row}${pb.col} all:   m ${pb.offsetX} ${pb.offsetY} ${e.edge} ${s.edge} ${w.edge} ${n.edge}');
@@ -101,10 +101,8 @@ class PiecesGenerator {
             key: GlobalKey(),
             image: image,
             imageSize: imageSize,
-            row: x,
-            col: y,
-            maxRow: maxRC.row,
-            maxCol: maxRC.col,
+            home: RC(x, y),
+            maxRC: maxRC,
             bringToTop: bringToTop,
             sendToBack: sendToBack);
         pieces.add(piece);

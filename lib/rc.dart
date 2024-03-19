@@ -6,9 +6,9 @@ class RC {
   final int row;
   final int col;
 
-  RC({required this.row, required this.col});
+  RC(this.row, this.col);
 
-  RC get zero => RC(col: 0, row: 0);
+  RC get zero => RC(0, 0);
 
   const RC.zero()
       : row = 0,
@@ -25,8 +25,8 @@ class RC {
 
   factory RC.fromMap(Map<String, dynamic> map) {
     return RC(
-      row: map['row'] as int,
-      col: map['col'] as int,
+      map['row'] as int,
+      map['col'] as int,
     );
   }
 

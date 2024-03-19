@@ -15,9 +15,9 @@ late Size imageSize;
 late Size playSize;
 
 /// Number of rows and columns for selected puzzle.
-// final RC maxRC = RC(row: 12, col: 9);
-final RC maxRC = RC(row: 4, col: 5);
-// final RC maxRC = RC(row: 3, col: 3);
+// final RC maxRC = RC(9, 12);
+final RC maxRC = RC(4, 5);
+// final RC maxRC = RC(3, 3);
 
 void main() async {
   runApp(const MyApp());

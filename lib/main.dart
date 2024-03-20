@@ -15,6 +15,7 @@ late Size imageSize;
 late Size playSize;
 
 /// Number of rows and columns for selected puzzle.
+// final RC maxRC = RC(25, 35);
 // final RC maxRC = RC(9, 12);
 final RC maxRC = RC(4, 5);
 // final RC maxRC = RC(3, 3);

@@ -8,23 +8,20 @@ import 'package:flutter/material.dart';
 import 'piece_path.dart';
 
 class PuzzlePiece extends StatefulWidget {
-  final Size playSize;
+  final int id;
   final Image image;
   final Size imageSize;
   final RC home;
-  final RC maxRC;
   final PiecePath piecePath;
-
   final Function bringToTop;
   final Function sendToBack;
 
   const PuzzlePiece({
     super.key,
-    required this.playSize,
+    this.id = -1,
     required this.image,
     required this.imageSize,
     required this.home,
-    required this.maxRC,
     required this.piecePath,
     required this.bringToTop,
     required this.sendToBack,
@@ -51,8 +48,8 @@ class PuzzlePieceState extends State<PuzzlePiece> {
     super.initState();
     imageWidth = imageSize.width;
     imageHeight = imageSize.height;
-    pieceWidth = imageWidth / widget.maxRC.col;
-    pieceHeight = imageHeight / widget.maxRC.row;
+    pieceWidth = imageWidth / maxRC.col;
+    pieceHeight = imageHeight / maxRC.row;
     if (top == null) {
       top = Random().nextInt((imageHeight - pieceHeight).ceil()).toDouble();
       top = top! - widget.home.row * pieceHeight;
@@ -96,13 +93,12 @@ class PuzzlePieceState extends State<PuzzlePiece> {
           }
         },
         child: ClipPath(
-          clipper: PuzzlePieceClipper(widget.piecePath, widget.home.row,
-              widget.home.col, widget.maxRC.row, widget.maxRC.col),
+          clipper: PuzzlePieceClipper(widget.piecePath, widget.home, maxRC),
           child: CustomPaint(
               foregroundPainter: PuzzlePiecePainter(
                 widget.piecePath,
                 widget.home,
-                widget.maxRC,
+                maxRC,
               ),
               child: widget.image),
         ),
@@ -114,13 +110,10 @@ class PuzzlePieceState extends State<PuzzlePiece> {
 // Clips the image to the puzzle piece path
 class PuzzlePieceClipper extends CustomClipper<Path> {
   final PiecePath piecePath;
-  final int row;
-  final int col;
-  final int maxRow;
-  final int maxCol;
+  final RC home;
+  final RC maxRC;
 
-  PuzzlePieceClipper(
-      this.piecePath, this.row, this.col, this.maxRow, this.maxCol);
+  PuzzlePieceClipper(this.piecePath, this.home, this.maxRC);
 
   @override
   Path getClip(Size size) {

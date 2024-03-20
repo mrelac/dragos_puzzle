@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/piece_path.dart';
+import 'package:dragos_puzzle/rc.dart';
 import 'package:dragos_puzzle/styles/edge.dart';
 import 'package:flutter/material.dart';
 
@@ -11,23 +12,21 @@ int nextEdgeKey = 1;
 /// Generates [Edge] instances from the given parameters.
 /// These instances are used to assign random [Path]s for each [PiecePath].
 class PathBuilder {
-  final int row;
-  final int col;
+  final RC home;
   final double pieceWidth;
   final double pieceHeight;
-  late final double offsetX;
-  late final double offsetY;
+  late final double homeX;
+  late final double homeY;
   late final double bumpSize;
 
-  String get m => 'm $offsetX $offsetY';
+  String get m => 'm $homeX $homeY';
 
   PathBuilder(
-    this.row,
-    this.col,
+    this.home,
   )   : pieceWidth = imageSize.width / maxRC.col,
         pieceHeight = imageSize.height / maxRC.row {
-    offsetX = col * pieceWidth;
-    offsetY = row * pieceHeight;
+    homeX = home.col * pieceWidth;
+    homeY = home.row * pieceHeight;
     bumpSize = pieceHeight / 4;
   }
 
@@ -59,13 +58,13 @@ class PathBuilder {
       afterC: -pp.beforeC);
 
   /// Returns prev row's east mate, or horiz line if top border edge piece.
-  Edge generateEast(PiecePath? prevRow) => row == 0
+  Edge generateEast(PiecePath? prevRow) => home.row == 0
       ? Edge(edge: 'h $pieceWidth')
       : Edge(edge: prevRow!.w.mate, key: prevRow.w.key);
 
   /// Returns random edge, or vert line if right border edge piece.
   Edge generateSouth() {
-    if (col == maxRC.col - 1) return Edge(edge: 'v $pieceHeight');
+    if (home.col == maxRC.col - 1) return Edge(edge: 'v $pieceHeight');
     final parms = (Random().nextBool()) ? _southBumpParms : _southCutParms;
     return Edge(
         edge: getVerticalEdge(parms),
@@ -75,7 +74,7 @@ class PathBuilder {
 
   /// Returns random edge, or horiz line if bottom border edge piece.
   Edge generateWest() {
-    if (row == maxRC.row - 1) return Edge(edge: 'h ${-pieceWidth}');
+    if (home.row == maxRC.row - 1) return Edge(edge: 'h ${-pieceWidth}');
     final parms = (Random().nextBool()) ? _westBumpParms : _westCutParms;
     return Edge(
         edge: getHorizontalEdge(parms),
@@ -84,7 +83,7 @@ class PathBuilder {
   }
 
   /// Returns prev col's south mate, or vert line if left border edge piece.
-  Edge generateNorth(PiecePath? prevCol) => col == 0
+  Edge generateNorth(PiecePath? prevCol) => home.col == 0
       ? Edge(edge: 'v ${-pieceHeight}')
       : Edge(edge: prevCol!.s.mate, key: prevCol.s.key);
 

@@ -1,7 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:dragos_puzzle/main.dart';
 import 'package:dragos_puzzle/piece_path.dart';
-// import 'package:dragos_puzzle/piece_path.dart';
 import 'package:dragos_puzzle/puzzle_piece.dart';
 import 'package:dragos_puzzle/rc.dart';
 import 'package:dragos_puzzle/styles/edge.dart';
@@ -48,7 +47,7 @@ class PiecesGenerator {
   });
 
   Edge _getEast(PathBuilder pb) {
-    return pb.generateEast(ppMap[RC(pb.row - 1, pb.col)]);
+    return pb.generateEast(ppMap[RC(pb.home.row - 1, pb.home.col)]);
   }
 
   Edge _getSouth(PathBuilder pb) {
@@ -60,7 +59,7 @@ class PiecesGenerator {
   }
 
   Edge _getNorth(PathBuilder pb) {
-    return pb.generateNorth(ppMap[RC(pb.row, pb.col - 1)]);
+    return pb.generateNorth(ppMap[RC(pb.home.row, pb.home.col - 1)]);
   }
 
   PiecePath _generatePiece(PathBuilder pb) {
@@ -69,21 +68,21 @@ class PiecesGenerator {
     final w = _getWest(pb);
     final n = _getNorth(pb);
 
-    final pp = PiecePath(
-        offsetX: pb.offsetX, offsetY: pb.offsetY, e: e, s: s, w: w, n: n);
-    ppMap[RC(pb.row, pb.col)] = pp;
+    final pp =
+        PiecePath(homeX: pb.homeX, homeY: pb.homeY, e: e, s: s, w: w, n: n);
+    ppMap[RC(pb.home.row, pb.home.col)] = pp;
     if (kDebugMode) {
       print(
-          'pp${pb.row}${pb.col} all:   m ${pb.offsetX} ${pb.offsetY} ${e.edge} ${s.edge} ${w.edge} ${n.edge}');
+          'pp${pb.home.row}${pb.home.col} all:   m ${pb.homeX} ${pb.homeY} ${e.edge} ${s.edge} ${w.edge} ${n.edge}');
       print(
-          'pp${pb.row}${pb.col} east:  m ${pb.offsetX} ${pb.offsetY} ${e.edge}       m ${pb.offsetX} ${pb.offsetY} ${e.mate}    key: ${e.key}');
+          'pp${pb.home.row}${pb.home.col} east:  m ${pb.homeX} ${pb.homeY} ${e.edge}       m ${pb.homeX} ${pb.homeY} ${e.mate}    key: ${e.key}');
       print(
-          'pp${pb.row}${pb.col} south: m ${pb.offsetX} ${pb.offsetY} ${s.edge}       m ${pb.offsetX} ${pb.offsetY} ${s.mate}    key: ${s.key}');
+          'pp${pb.home.row}${pb.home.col} south: m ${pb.homeX} ${pb.homeY} ${s.edge}       m ${pb.homeX} ${pb.homeY} ${s.mate}    key: ${s.key}');
       print(
-          'pp${pb.row}${pb.col} west:  m ${pb.offsetX} ${pb.offsetY} ${w.edge}       m ${pb.offsetX} ${pb.offsetY} ${w.mate}    key: ${w.key}');
+          'pp${pb.home.row}${pb.home.col} west:  m ${pb.homeX} ${pb.homeY} ${w.edge}       m ${pb.homeX} ${pb.homeY} ${w.mate}    key: ${w.key}');
       print(
-          'pp${pb.row}${pb.col} north: m ${pb.offsetX} ${pb.offsetY} ${n.edge}       m ${pb.offsetX} ${pb.offsetY} ${n.mate}    key: ${n.key}');
-      print('pp${pb.row}${pb.col}');
+          'pp${pb.home.row}${pb.home.col} north: m ${pb.homeX} ${pb.homeY} ${n.edge}       m ${pb.homeX} ${pb.homeY} ${n.mate}    key: ${n.key}');
+      print('pp${pb.home.row}${pb.home.col}');
     }
     return pp;
   }
@@ -93,16 +92,14 @@ class PiecesGenerator {
     final pieces = <PuzzlePiece>[];
     for (int x = 0; x < maxRC.row; x++) {
       for (int y = 0; y < maxRC.col; y++) {
-        final pb = PathBuilder(x, y);
+        final pb = PathBuilder(RC(x, y));
         final piecePath = _generatePiece(pb);
         final piece = PuzzlePiece(
             piecePath: piecePath,
-            playSize: playSize,
             key: GlobalKey(),
             image: image,
             imageSize: imageSize,
             home: RC(x, y),
-            maxRC: maxRC,
             bringToTop: bringToTop,
             sendToBack: sendToBack);
         pieces.add(piece);
